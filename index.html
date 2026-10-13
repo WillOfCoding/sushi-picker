@@ -152,7 +152,7 @@ td.t{color:var(--mute)}
 </section>
 
 <section id="admin" class="hide">
-  <div class="bar"><h1 style="margin:0" id="hello"></h1><button class="link" id="logout">Log out</button></div>
+  <div class="bar"><h1 style="margin:0" id="hello"></h1><span><button class="link" id="refresh" style="margin-right:16px">Refresh</button><button class="link" id="logout">Log out</button></span></div>
   <div class="stats" id="stats"></div>
   <div id="tableWrap"></div>
   <button class="link" id="clear" style="margin-top:16px">Clear all submissions</button>
@@ -162,13 +162,19 @@ td.t{color:var(--mute)}
 <script>
 // name, emoji, price in dollars
 const SUSHI=[["Salmon Nigiri","🍣",5],["Tuna Roll","🍙",6],["California Roll","🥑",6],["Shrimp Tempura","🍤",8],["Eel Roll","🐟",9],["Veggie Roll","🥒",5]];
-// SHA-256 hashes of passwords (keeps them out of plain text)
-const USERS={will:{name:"Will",hash:"560ad08b19fa9573686e1debcf8cbbdec81bfe9d149e6837e13ec2c4274f3c9c"},
-             zunis:{name:"Zunis",hash:"03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"}};
-const KEY="sushi_orders", MINE="sushi_my_orders", SESSION="sushi_session";
+// Supabase project (the publishable key is meant to be public; the database rules do the protecting)
+const SB_URL="https://ielxhqawejlkavlqccsa.supabase.co", SB_KEY="sb_publishable_ahBumScCxZyok2TrV-0RQA_XC0yiaPn";
+const MINE="sushi_my_orders", SESSION="sushi_session";
+async function sb(path,body){
+  const h={apikey:SB_KEY,"Content-Type":"application/json"};if(!path.startsWith("rpc/"))h.Prefer="return=minimal";
+  const r=await fetch(SB_URL+"/rest/v1/"+path,{method:"POST",headers:h,body:JSON.stringify(body)});
+  if(!r.ok){const e=new Error("request failed");e.status=r.status;try{e.code=(await r.json()).code;}catch{}throw e;}
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+const rpc=(fn,args)=>sb("rpc/"+fn,args);
+const sess=()=>{try{const s=JSON.parse(sessionStorage.getItem(SESSION));return s&&s.p?s:null;}catch{return null;}};
+const cred=()=>{const s=sess();return {u:s.u,p:s.p};};
 const $=id=>document.getElementById(id);
-const store={get:()=>JSON.parse(localStorage.getItem(KEY)||"[]"),set:v=>localStorage.setItem(KEY,JSON.stringify(v))};
-const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
 const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 const money=n=>"$"+n.toFixed(2);
@@ -218,49 +224,63 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("cal").classList
 const cur=()=>["pick","login","admin"].find(s=>!$(s).classList.contains("hide"));
 function show(id){["pick","login","admin"].forEach(s=>$(s).classList.toggle("hide",s!==id));
   document.querySelector("main").classList.toggle("wide",id==="admin");if(id==="pick")drawPast();
-  $("navAdmin").textContent=id!=="pick"?"Order form":(sessionStorage.getItem(SESSION)?"Dashboard":"Staff login");}
+  $("navAdmin").textContent=id!=="pick"?"Order form":(sess()?"Dashboard":"Staff login");}
 $("navAdmin").onclick=()=>{if(cur()!=="pick")return show("pick");
-  if(sessionStorage.getItem(SESSION)){render();show("admin");}else show("login");};
+  if(sess()){show("admin");render();}else show("login");};
 
-$("pickForm").onsubmit=e=>{e.preventDefault();
-  const name=$("name").value.trim(),items=cartItems(),m=$("pickMsg");
+$("pickForm").onsubmit=async e=>{e.preventDefault();
+  const name=$("name").value.trim(),items=cartItems(),m=$("pickMsg"),btn=$("submit");
   const miss=!name?"Please add your name.":!items.length?"Please add at least one sushi.":!picked?"Please pick a day.":"";
   if(miss){m.className="msg err";m.textContent=miss;if(!name)$("name").focus();else if(!items.length)$("grid").querySelector("button").focus();else $("dateBtn").focus();return;}
-  const o=store.get(),total=sum(items),order={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),name,items,total,day:picked,paid:false,at:new Date().toISOString()};
-  o.push(order);store.set(o);
-  const mine=myOrders();mine.push(order);localStorage.setItem(MINE,JSON.stringify(mine));drawPast();
+  const total=sum(items),order={id:crypto.randomUUID(),name,items,total,day:picked};
+  btn.disabled=true;btn.textContent="Sending…";m.textContent="";
+  try{await sb("orders",order);}
+  catch{m.className="msg err";m.textContent="Couldn't send your order. Check your connection and try again.";btn.disabled=false;drawMenu();return;}
+  btn.disabled=false;
+  const mine=myOrders();mine.push({...order,at:new Date().toISOString()});localStorage.setItem(MINE,JSON.stringify(mine));
   m.className="msg ok";m.textContent=`Thanks ${name}! Your order for ${nice(fromKey(picked))} is in. Bring ${money(total)} in cash.`;
-  e.target.reset();qty.fill(0);drawMenu();setDate(null);};
+  e.target.reset();qty.fill(0);drawMenu();setDate(null);drawPast();};
 
 /* ---- this browser's past orders ---- */
 function myOrders(){return JSON.parse(localStorage.getItem(MINE)||"[]");}
-function drawPast(){
-  const mine=myOrders().reverse(),all=store.get();
+async function drawPast(){
+  const mine=myOrders().filter(x=>x.items&&x.day).reverse();
   $("past").classList.toggle("hide",!mine.length);
-  $("pastList").innerHTML=mine.map(x=>{const live=all.find(y=>y.id===x.id),paid=live&&live.paid;
+  const paint=st=>$("pastList").innerHTML=mine.map(x=>{const live=st&&x.id in st,paid=live&&st[x.id];
     return `<div class="po"><div class="top"><span>${nice(fromKey(x.day))}</span><span>${money(x.total)}</span></div><div class="it">${x.items.map(it=>`${it.qty} × ${esc(it.name)}`).join(", ")}</div><div class="bot"><span>Ordered ${new Date(x.at).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})} as ${esc(x.name)}</span>${live?`<span class="tag${paid?" paid":""}">${paid?"Paid":"Not paid"}</span>`:""}</div></div>`;}).join("");
+  paint(null);if(!mine.length)return;
+  const ids=mine.map(x=>x.id).filter(id=>/^[0-9a-f-]{36}$/.test(id));if(!ids.length)return;
+  try{const rows=await rpc("order_status",{ids});paint(Object.fromEntries(rows.map(r=>[r.id,r.paid])));}catch{}
 }
 drawPast();
 
 $("loginForm").onsubmit=async e=>{e.preventDefault();
-  const u=USERS[$("user").value.trim().toLowerCase()];
-  if(u&&await sha($("pw").value)===u.hash){sessionStorage.setItem(SESSION,u.name);e.target.reset();$("loginMsg").textContent="";render();show("admin");}
-  else $("loginMsg").textContent="Wrong username or password.";};
+  const u=$("user").value.trim(),p=$("pw").value,m=$("loginMsg"),btn=e.target.querySelector(".btn");
+  btn.disabled=true;m.textContent="";
+  try{const name=await rpc("staff_login",{u,p});sessionStorage.setItem(SESSION,JSON.stringify({u,p,name}));e.target.reset();show("admin");await render();}
+  catch(err){m.textContent=err.code==="28000"?"Wrong username or password.":"Couldn't reach the server. Try again.";}
+  btn.disabled=false;};
 
 $("logout").onclick=()=>{sessionStorage.removeItem(SESSION);show("pick");};
-$("clear").onclick=()=>{if(confirm("Delete all submissions?")){store.set([]);render();}};
+$("clear").onclick=async()=>{if(!confirm("Delete all submissions for everyone? This can't be undone."))return;
+  try{await rpc("staff_clear",cred());}catch{alert("Couldn't clear. Try again.");}render();};
+$("refresh").onclick=()=>render();
 
-// older entries had a single sushi and no price
-const itemsOf=x=>x.items||[{name:x.sushi,price:0,qty:1}];
-const totalOf=x=>x.total??sum(itemsOf(x));
-$("tableWrap").onclick=e=>{const b=e.target.closest(".pay");if(!b)return;const o=store.get(),i=+b.dataset.i;o[i].paid=!o[i].paid;store.set(o);render();
-  document.querySelector(`.pay[data-i="${i}"]`).focus();};
-function render(){
-  $("hello").textContent=`Hi, ${sessionStorage.getItem(SESSION)}`;
-  const o=store.get().map((x,i)=>({...x,i})).reverse(),counts={};let owed=0,got=0;
-  o.forEach(x=>{itemsOf(x).forEach(it=>counts[it.name]=(counts[it.name]||0)+it.qty);x.paid?got+=totalOf(x):owed+=totalOf(x);});
+$("tableWrap").onclick=async e=>{const b=e.target.closest(".pay");if(!b)return;const id=b.dataset.id,to=b.getAttribute("aria-pressed")!=="true";
+  b.disabled=true;
+  try{await rpc("staff_set_paid",{...cred(),order_id:id,is_paid:to});}catch{alert("Couldn't update. Try again.");}
+  await render();const n=document.querySelector(`.pay[data-id="${id}"]`);if(n)n.focus();};
+async function render(){
+  const s=sess();if(!s)return show("login");
+  $("hello").textContent=`Hi, ${s.name}`;
+  let o;
+  try{o=await rpc("staff_orders",cred());}
+  catch(err){if(err.code==="28000"){sessionStorage.removeItem(SESSION);return show("login");}
+    $("stats").innerHTML="";$("tableWrap").innerHTML=`<div class="none card">Couldn't load orders. Check your connection and press Refresh.</div>`;return;}
+  const counts={};let owed=0,got=0;
+  o.forEach(x=>{x.items.forEach(it=>counts[it.name]=(counts[it.name]||0)+it.qty);x.paid?got+=+x.total:owed+=+x.total;});
   $("stats").innerHTML=`<span class="chip"><b>${o.length}</b> orders</span><span class="chip">Not paid <b>${money(owed)}</b></span><span class="chip">Paid <b>${money(got)}</b></span>`+Object.entries(counts).map(([k,v])=>`<span class="chip">${esc(k)} <b>${v}</b></span>`).join("");
-  $("tableWrap").innerHTML=o.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Order</th><th>Total</th><th>Wanted for</th><th>Submitted</th><th>Cash</th></tr></thead><tbody>${o.map(x=>`<tr><td>${esc(x.name)}</td><td class="items">${itemsOf(x).map(it=>`${it.qty} × ${esc(it.name)}`).join("<br>")}</td><td><b>${money(totalOf(x))}</b></td><td>${x.day?nice(fromKey(x.day)):"—"}</td><td class="t">${new Date(x.at).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</td><td><button type="button" class="pay${x.paid?" paid":""}" data-i="${x.i}" aria-pressed="${!!x.paid}" title="Click to change">${x.paid?"Paid":"Not paid"}</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="none card">No submissions yet.</div>`;
+  $("tableWrap").innerHTML=o.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Order</th><th>Total</th><th>Wanted for</th><th>Submitted</th><th>Cash</th></tr></thead><tbody>${o.map(x=>`<tr><td>${esc(x.name)}</td><td class="items">${x.items.map(it=>`${+it.qty} × ${esc(String(it.name))}`).join("<br>")}</td><td><b>${money(+x.total)}</b></td><td>${nice(fromKey(x.day))}</td><td class="t">${new Date(x.created_at).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</td><td><button type="button" class="pay${x.paid?" paid":""}" data-id="${x.id}" aria-pressed="${!!x.paid}" title="Click to change">${x.paid?"Paid":"Not paid"}</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="none card">No submissions yet.</div>`;
 }
 </script>
 </body>
