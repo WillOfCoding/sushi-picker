@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sushi Picker</title>
+<style>
+:root{--bg:#fbfaf8;--card:#fff;--ink:#18181b;--mute:#71717a;--line:#e7e5e4;--accent:#e4572e;--accent-d:#c9431f;--tint:#fff4ef;--ok:#2e7d5b;--r:12px}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+header{display:flex;justify-content:space-between;align-items:center;max-width:600px;margin:0 auto;padding:24px 20px}
+.logo{font-weight:700;letter-spacing:-.01em}
+.link{background:none;border:0;color:var(--mute);cursor:pointer;font:inherit;font-size:.9rem;padding:6px 0}
+.link:hover{color:var(--ink)}
+main{max-width:600px;margin:0 auto;padding:24px 20px 80px;transition:max-width .2s}
+h1{font-size:1.75rem;line-height:1.2;margin:0 0 6px;letter-spacing:-.025em}
+p.sub{color:var(--mute);margin:0 0 36px}
+.field{margin-bottom:28px}
+.lbl{display:block;font-size:.85rem;font-weight:600;margin-bottom:8px}
+input[type=text],input[type=password],.datebtn{width:100%;height:48px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;background:var(--card);transition:border-color .15s,box-shadow .15s}
+input::placeholder{color:#a1a1aa}
+input:focus,.datebtn:focus-visible,.datebtn.open{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(228,87,46,.15)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.opt{display:flex;align-items:center;gap:12px;height:60px;padding:0 10px 0 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);cursor:pointer;transition:.15s}
+.opt:hover{border-color:#d6d3d1}
+.opt.on{border-color:var(--accent);background:var(--tint);box-shadow:0 0 0 1px var(--accent)}
+.opt i{font-style:normal;font-size:1.25rem}
+.opt .info{flex:1;line-height:1.25;min-width:0}
+.opt .info b{display:block;font-size:.95rem;font-weight:500}
+.opt .info small{color:var(--mute);font-size:.82rem}
+.step{display:flex;align-items:center;gap:2px}
+.step button{width:32px;height:32px;border:1px solid var(--line);border-radius:50%;background:var(--card);font:inherit;font-size:1.05rem;line-height:1;color:var(--ink);cursor:pointer}
+.step button:hover{border-color:#a8a29e}
+.step button:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(228,87,46,.25)}
+.step span{min-width:24px;text-align:center;font-weight:600;font-size:.95rem}
+.cart{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px 16px;margin-bottom:20px}
+.cart div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:.93rem}
+.cart div+div{border-top:1px solid var(--line)}
+.cart .q{color:var(--mute);margin-right:6px}
+.cart .tot{font-weight:700;font-size:1rem}
+.note{color:var(--mute);font-size:.85rem;text-align:center;margin:12px 0 0}
+.pay{border:1px solid var(--line);border-radius:999px;background:var(--card);padding:5px 12px 5px 10px;font:inherit;font-size:.82rem;font-weight:600;color:#b45309;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.pay::before{content:"";width:8px;height:8px;border-radius:50%;background:#f59e0b}
+.pay:hover{border-color:#a8a29e}
+.pay.paid{color:var(--ok);background:#eefaf4;border-color:#cdebdc}
+.pay.paid::before{background:var(--ok)}
+td.items{white-space:normal;min-width:170px}
+.past{margin-top:56px}
+.past h2{font-size:.85rem;font-weight:600;margin:0 0 8px}
+.po{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;font-size:.93rem}
+.po .top{display:flex;justify-content:space-between;gap:12px;font-weight:600}
+.po .it{color:var(--mute);margin:4px 0 8px}
+.po .bot{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--mute);font-size:.82rem}
+.tag{font-weight:600;color:#b45309}.tag.paid{color:var(--ok)}
+.datewrap{position:relative}
+.datebtn{display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left}
+.datebtn.empty #dateText{color:#a1a1aa}
+.datebtn svg{color:var(--mute);flex:none}
+.cal{position:absolute;z-index:10;top:56px;left:0;width:308px;max-width:100%;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 32px rgba(24,24,27,.12);animation:pop .14s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calhead b{font-size:.95rem}
+.nav{width:32px;height:32px;border:0;border-radius:8px;background:none;cursor:pointer;font-size:1.1rem;color:var(--ink)}
+.nav:hover:not(:disabled){background:#f4f4f5}
+.nav:disabled{opacity:.25;cursor:default}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.days small{text-align:center;font-size:.72rem;color:var(--mute);padding:6px 0}
+.day{aspect-ratio:1;border:0;border-radius:50%;background:none;font:inherit;font-size:.9rem;color:inherit;cursor:pointer}
+.day:hover:not(:disabled){background:#f4f4f5}
+.day:disabled{color:#d4d4d8;cursor:default}
+.day.today{box-shadow:inset 0 0 0 1px var(--line);font-weight:600}
+.day.sel,.day.sel:hover{background:var(--accent);color:#fff;box-shadow:none}
+.btn{width:100%;height:50px;border:0;border-radius:var(--r);background:var(--ink);color:#fff;font:inherit;font-weight:600;cursor:pointer;transition:.15s}
+.btn:hover{background:#000}
+.msg{margin-top:14px;font-size:.9rem;min-height:1.4em;text-align:center}
+.err{color:#c0392b}.ok{color:var(--ok)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px}
+.card .field:last-of-type{margin-bottom:24px}
+.hide{display:none}
+main.wide{max-width:900px}
+.tw{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
+tr:last-child td{border-bottom:0}
+td.t{color:var(--mute)}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.85rem}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.none{text-align:center;color:var(--mute);padding:48px 20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🍣 Sushi Picker</div>
+  <button class="link" id="navAdmin">Staff login</button>
+</header>
+<main>
+
+<section id="pick">
+  <h1>What are you craving?</h1>
+  <p class="sub">Add what you like, pick a day, pay in cash.</p>
+  <form id="pickForm" novalidate>
+    <div class="field">
+      <label class="lbl" for="name">Your name</label>
+      <input type="text" id="name" maxlength="40" autocomplete="name" placeholder="Alex">
+    </div>
+    <div class="field">
+      <span class="lbl" id="lbl">Sushi</span>
+      <div class="grid" id="grid" role="group" aria-labelledby="lbl"></div>
+    </div>
+    <div class="field">
+      <span class="lbl" id="dlbl">Day you want it</span>
+      <div class="datewrap">
+        <button type="button" class="datebtn empty" id="dateBtn" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="dlbl dateText">
+          <span id="dateText">Pick a date</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        </button>
+        <div class="cal hide" id="cal" role="dialog" aria-label="Choose a date">
+          <div class="calhead">
+            <button type="button" class="nav" id="prev" aria-label="Previous month">‹</button>
+            <b id="calTitle" aria-live="polite"></b>
+            <button type="button" class="nav" id="next" aria-label="Next month">›</button>
+          </div>
+          <div class="days" id="days"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cart hide" id="cart" aria-live="polite"></div>
+    <button class="btn" type="submit" id="submit">Submit</button>
+    <p class="note">No payment here. Pay in cash.</p>
+    <div class="msg" id="pickMsg" role="status"></div>
+  </form>
+  <div class="past hide" id="past"><h2>Your past orders</h2><div id="pastList"></div></div>
+</section>
+
+<section id="login" class="hide">
+  <h1>Staff login</h1>
+  <p class="sub">See who asked for what.</p>
+  <form id="loginForm" class="card">
+    <div class="field">
+      <label class="lbl" for="user">Username</label>
+      <input type="text" id="user" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label class="lbl" for="pw">Password</label>
+      <input type="password" id="pw" autocomplete="current-password" required>
+    </div>
+    <button class="btn" type="submit">Log in</button>
+    <div class="msg err" id="loginMsg" role="alert"></div>
+  </form>
+</section>
+
+<section id="admin" class="hide">
+  <div class="bar"><h1 style="margin:0" id="hello"></h1><button class="link" id="logout">Log out</button></div>
+  <div class="stats" id="stats"></div>
+  <div id="tableWrap"></div>
+  <button class="link" id="clear" style="margin-top:16px">Clear all submissions</button>
+</section>
+
+</main>
+<script>
+// name, emoji, price in dollars
+const SUSHI=[["Salmon Nigiri","🍣",5],["Tuna Roll","🍙",6],["California Roll","🥑",6],["Shrimp Tempura","🍤",8],["Eel Roll","🐟",9],["Veggie Roll","🥒",5]];
+// SHA-256 hashes of passwords (keeps them out of plain text)
+const USERS={will:{name:"Will",hash:"560ad08b19fa9573686e1debcf8cbbdec81bfe9d149e6837e13ec2c4274f3c9c"},
+             zunis:{name:"Zunis",hash:"03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"}};
+const KEY="sushi_orders", MINE="sushi_my_orders", SESSION="sushi_session";
+const $=id=>document.getElementById(id);
+const store={get:()=>JSON.parse(localStorage.getItem(KEY)||"[]"),set:v=>localStorage.setItem(KEY,JSON.stringify(v))};
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const money=n=>"$"+n.toFixed(2);
+
+/* ---- menu + cart ---- */
+const qty=SUSHI.map(()=>0);
+const cartItems=()=>SUSHI.map(([name,,price],i)=>({name,price,qty:qty[i]})).filter(x=>x.qty);
+const sum=items=>items.reduce((t,x)=>t+x.price*x.qty,0);
+function drawMenu(){
+  $("grid").innerHTML=SUSHI.map(([n,e,p],i)=>`<div class="opt${qty[i]?" on":""}" data-i="${i}"><i>${e}</i><div class="info"><b>${n}</b><small>${money(p)}</small></div><div class="step">${qty[i]?`<button type="button" data-d="-1" aria-label="Remove one ${n}">−</button><span aria-label="${qty[i]} in cart">${qty[i]}</span>`:""}<button type="button" data-d="1" aria-label="Add ${n}">+</button></div></div>`).join("");
+  const items=cartItems(),t=sum(items);
+  $("cart").classList.toggle("hide",!items.length);
+  $("cart").innerHTML=items.map(x=>`<div><span><span class="q">${x.qty} ×</span>${x.name}</span><span>${money(x.price*x.qty)}</span></div>`).join("")+`<div class="tot"><span>Total</span><span>${money(t)}</span></div>`;
+  $("submit").textContent=items.length?`Submit · ${money(t)}`:"Submit";
+}
+$("grid").onclick=e=>{const c=e.target.closest(".opt");if(!c)return;const i=+c.dataset.i,b=e.target.closest("button"),d=b?+b.dataset.d:(qty[i]?0:1);
+  if(!d)return;qty[i]=Math.max(0,Math.min(20,qty[i]+d));drawMenu();$("pickMsg").textContent="";
+  if(b){const c2=$("grid").children[i];(c2.querySelector(`[data-d="${d}"]`)||c2.querySelector("button")).focus();}};
+drawMenu();
+
+/* ---- calendar ---- */
+const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+let view=new Date(today.getFullYear(),today.getMonth(),1), picked=null;
+const pad=n=>String(n).padStart(2,"0");
+const key=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fromKey=k=>{const [y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d);};
+const nice=d=>d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"});
+function drawCal(){
+  $("calTitle").textContent=view.toLocaleDateString([],{month:"long",year:"numeric"});
+  $("prev").disabled=view<=new Date(today.getFullYear(),today.getMonth(),1);
+  const y=view.getFullYear(),m=view.getMonth(),n=new Date(y,m+1,0).getDate();
+  let h=["S","M","T","W","T","F","S"].map(d=>`<small>${d}</small>`).join("")+"<span></span>".repeat(view.getDay());
+  for(let d=1;d<=n;d++){const dt=new Date(y,m,d),k=key(dt);
+    h+=`<button type="button" class="day${+dt===+today?" today":""}${k===picked?" sel":""}" data-k="${k}" aria-label="${nice(dt)}" ${dt<today?"disabled":""}>${d}</button>`;}
+  $("days").innerHTML=h;
+}
+function setCal(open){$("cal").classList.toggle("hide",!open);$("dateBtn").classList.toggle("open",open);$("dateBtn").setAttribute("aria-expanded",open);if(open)drawCal();}
+function setDate(k){picked=k;$("dateText").textContent=k?nice(fromKey(k)):"Pick a date";$("dateBtn").classList.toggle("empty",!k);}
+$("dateBtn").onclick=()=>setCal($("cal").classList.contains("hide"));
+$("prev").onclick=()=>{view.setMonth(view.getMonth()-1);drawCal();};
+$("next").onclick=()=>{view.setMonth(view.getMonth()+1);drawCal();};
+$("days").onclick=e=>{const b=e.target.closest(".day");if(!b)return;setDate(b.dataset.k);setCal(false);$("dateBtn").focus();$("pickMsg").textContent="";};
+document.addEventListener("click",e=>{if(!e.target.closest(".datewrap"))setCal(false);});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("cal").classList.contains("hide")){setCal(false);$("dateBtn").focus();}});
+
+/* ---- views ---- */
+const cur=()=>["pick","login","admin"].find(s=>!$(s).classList.contains("hide"));
+function show(id){["pick","login","admin"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+  document.querySelector("main").classList.toggle("wide",id==="admin");if(id==="pick")drawPast();
+  $("navAdmin").textContent=id!=="pick"?"Order form":(sessionStorage.getItem(SESSION)?"Dashboard":"Staff login");}
+$("navAdmin").onclick=()=>{if(cur()!=="pick")return show("pick");
+  if(sessionStorage.getItem(SESSION)){render();show("admin");}else show("login");};
+
+$("pickForm").onsubmit=e=>{e.preventDefault();
+  const name=$("name").value.trim(),items=cartItems(),m=$("pickMsg");
+  const miss=!name?"Please add your name.":!items.length?"Please add at least one sushi.":!picked?"Please pick a day.":"";
+  if(miss){m.className="msg err";m.textContent=miss;if(!name)$("name").focus();else if(!items.length)$("grid").querySelector("button").focus();else $("dateBtn").focus();return;}
+  const o=store.get(),total=sum(items),order={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),name,items,total,day:picked,paid:false,at:new Date().toISOString()};
+  o.push(order);store.set(o);
+  const mine=myOrders();mine.push(order);localStorage.setItem(MINE,JSON.stringify(mine));drawPast();
+  m.className="msg ok";m.textContent=`Thanks ${name}! Your order for ${nice(fromKey(picked))} is in. Bring ${money(total)} in cash.`;
+  e.target.reset();qty.fill(0);drawMenu();setDate(null);};
+
+/* ---- this browser's past orders ---- */
+function myOrders(){return JSON.parse(localStorage.getItem(MINE)||"[]");}
+function drawPast(){
+  const mine=myOrders().reverse(),all=store.get();
+  $("past").classList.toggle("hide",!mine.length);
+  $("pastList").innerHTML=mine.map(x=>{const live=all.find(y=>y.id===x.id),paid=live&&live.paid;
+    return `<div class="po"><div class="top"><span>${nice(fromKey(x.day))}</span><span>${money(x.total)}</span></div><div class="it">${x.items.map(it=>`${it.qty} × ${esc(it.name)}`).join(", ")}</div><div class="bot"><span>Ordered ${new Date(x.at).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})} as ${esc(x.name)}</span>${live?`<span class="tag${paid?" paid":""}">${paid?"Paid":"Not paid"}</span>`:""}</div></div>`;}).join("");
+}
+drawPast();
+
+$("loginForm").onsubmit=async e=>{e.preventDefault();
+  const u=USERS[$("user").value.trim().toLowerCase()];
+  if(u&&await sha($("pw").value)===u.hash){sessionStorage.setItem(SESSION,u.name);e.target.reset();$("loginMsg").textContent="";render();show("admin");}
+  else $("loginMsg").textContent="Wrong username or password.";};
+
+$("logout").onclick=()=>{sessionStorage.removeItem(SESSION);show("pick");};
+$("clear").onclick=()=>{if(confirm("Delete all submissions?")){store.set([]);render();}};
+
+// older entries had a single sushi and no price
+const itemsOf=x=>x.items||[{name:x.sushi,price:0,qty:1}];
+const totalOf=x=>x.total??sum(itemsOf(x));
+$("tableWrap").onclick=e=>{const b=e.target.closest(".pay");if(!b)return;const o=store.get(),i=+b.dataset.i;o[i].paid=!o[i].paid;store.set(o);render();
+  document.querySelector(`.pay[data-i="${i}"]`).focus();};
+function render(){
+  $("hello").textContent=`Hi, ${sessionStorage.getItem(SESSION)}`;
+  const o=store.get().map((x,i)=>({...x,i})).reverse(),counts={};let owed=0,got=0;
+  o.forEach(x=>{itemsOf(x).forEach(it=>counts[it.name]=(counts[it.name]||0)+it.qty);x.paid?got+=totalOf(x):owed+=totalOf(x);});
+  $("stats").innerHTML=`<span class="chip"><b>${o.length}</b> orders</span><span class="chip">Not paid <b>${money(owed)}</b></span><span class="chip">Paid <b>${money(got)}</b></span>`+Object.entries(counts).map(([k,v])=>`<span class="chip">${esc(k)} <b>${v}</b></span>`).join("");
+  $("tableWrap").innerHTML=o.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Order</th><th>Total</th><th>Wanted for</th><th>Submitted</th><th>Cash</th></tr></thead><tbody>${o.map(x=>`<tr><td>${esc(x.name)}</td><td class="items">${itemsOf(x).map(it=>`${it.qty} × ${esc(it.name)}`).join("<br>")}</td><td><b>${money(totalOf(x))}</b></td><td>${x.day?nice(fromKey(x.day)):"—"}</td><td class="t">${new Date(x.at).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</td><td><button type="button" class="pay${x.paid?" paid":""}" data-i="${x.i}" aria-pressed="${!!x.paid}" title="Click to change">${x.paid?"Paid":"Not paid"}</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="none card">No submissions yet.</div>`;
+}
+</script>
+</body>
+</html>
