@@ -389,7 +389,7 @@ async function drawPast(){
   const ids=mine.map(x=>x.id).filter(id=>/^[0-9a-f-]{36}$/.test(id));if(!ids.length)return;
   try{const rows=await rpc("order_status",{ids});paint(Object.fromEntries(rows.map(r=>[r.id,r.paid])));}catch{}
 }
-drawPast();
+drawPast();if(sess())$("navAdmin").textContent="Dashboard";
 
 $("loginForm").onsubmit=async e=>{e.preventDefault();
   const u=$("user").value.trim(),p=$("pw").value,m=$("loginMsg"),btn=e.target.querySelector(".btn");
