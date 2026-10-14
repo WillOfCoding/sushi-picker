@@ -109,6 +109,42 @@ td.t{color:var(--mute)}
 .sm.go{background:var(--ink);border-color:var(--ink);color:#fff}
 .sm.del{color:#c0392b}
 .sm:disabled{opacity:.5;cursor:default}
+.sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:44px 0 4px}
+.sechead .sec{margin:0}
+.sechead+p{color:var(--mute);font-size:.9rem;margin:0 0 14px}
+.sm.imp{height:36px;padding:0 12px;font-size:.82rem;flex:none}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.choice{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;text-align:left;cursor:pointer;transition:.15s}
+.choice:hover,.choice.on{border-color:var(--accent);background:var(--tint)}
+.choice:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(228,87,46,.25)}
+.choice i{font-style:normal;font-size:1.5rem;margin-bottom:6px}
+.choice b{font-weight:600;font-size:.95rem}
+.choice small{color:var(--mute);font-size:.82rem;line-height:1.35}
+textarea{display:block;width:100%;min-height:150px;padding:12px 14px;margin-bottom:12px;border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;background:var(--card);resize:vertical}
+textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(228,87,46,.15)}
+.scan{position:relative;height:240px;border-radius:16px;overflow:hidden;background:#18181b;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.scan img{width:100%;height:100%;object-fit:cover;opacity:.7}
+.scan pre{align-self:stretch;flex:1;margin:0;padding:18px;color:#d4d4d8;font:13px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow:hidden;opacity:.8}
+.scan .doc{font-size:3.5rem}
+.scan::after{content:"";position:absolute;left:0;right:0;top:0;height:64px;background:linear-gradient(to bottom,rgba(228,87,46,0),rgba(228,87,46,.35));border-bottom:2px solid var(--accent);animation:sweep 1.8s ease-in-out infinite alternate}
+@keyframes sweep{from{transform:translateY(-64px)}to{transform:translateY(240px)}}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:flex;align-items:center;gap:12px;padding:9px 0;color:#a1a1aa}
+.steps li::before{content:"";width:18px;height:18px;flex:none;border-radius:50%;border:2px solid var(--line)}
+.steps li.now{color:var(--ink);font-weight:600}
+.steps li.now::before{border-color:var(--line);border-top-color:var(--accent);animation:spin .7s linear infinite}
+.steps li.done{color:var(--ink)}
+.steps li.done::before{border-color:var(--ok);background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center/11px no-repeat}
+@keyframes spin{to{transform:rotate(360deg)}}
+.res{padding:6px 16px;margin-bottom:20px}
+.res div{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:.95rem}
+.res div+div{border-top:1px solid var(--line)}
+.res .nm{flex:1;min-width:0}
+.res .gone .nm,.res .gone .pz{text-decoration:line-through;color:var(--mute)}
+.res em{font-style:normal;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:#eefaf4;color:var(--ok)}
+.res em.chg{background:#fef3c7;color:#b45309}
+.res em.out{background:#f4f4f5;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){.scan::after{animation:none;transform:translateY(88px)}}
 @media (max-width:640px){
   header{padding:16px 16px 8px}
   main{padding:16px 16px 64px}
@@ -133,7 +169,12 @@ td.t{color:var(--mute)}
   td.t::before{content:"Ordered "}
   td.cash{grid-area:cash;justify-self:end}
   .pay{padding:10px 16px 10px 13px;font-size:.88rem}
-  .sec{margin-top:32px}
+  .sechead{margin-top:32px}
+  .choices{grid-template-columns:1fr}
+  .choice{flex-direction:row;align-items:center;gap:12px;padding:14px 16px}
+  .choice i{margin:0}
+  .choice span{display:flex;flex-direction:column}
+  .scan{height:200px}
   .menued{padding:6px 14px}
   .mrow{padding:12px 0}
   .mrow input,.sm{height:46px}
@@ -211,10 +252,39 @@ td.t{color:var(--mute)}
   <div class="stats" id="stats"></div>
   <div id="tableWrap"></div>
   <button class="link" id="clear" style="margin-top:16px">Clear all submissions</button>
-  <h2 class="sec">Menu</h2>
+  <div class="sechead"><h2 class="sec">Menu</h2><button type="button" class="sm imp" id="impOpen">✨ Import items</button></div>
   <p>Change the emoji, name or price and press Save. Customers see changes right away.</p>
   <div class="card menued" id="menuEd"></div>
   <div class="msg" id="menuMsg" role="status"></div>
+</section>
+
+<section id="import" class="hide">
+  <div class="bar"><h1 style="margin:0">Import items</h1><button class="link" id="impBack">Back</button></div>
+  <div id="impPick">
+    <p class="sub">Give the AI a menu or a few instructions and it updates yours: items, prices and emoji.</p>
+    <div class="choices">
+      <button type="button" class="choice" id="impText"><i>📝</i><span><b>Paste text</b><small>A menu, a list or instructions</small></span></button>
+      <button type="button" class="choice" id="impFile"><i>📎</i><span><b>Upload</b><small>A photo, PDF or text file</small></span></button>
+      <button type="button" class="choice" id="impCam"><i>📷</i><span><b>Take a photo</b><small>Snap a menu with your camera</small></span></button>
+    </div>
+    <input type="file" id="fileIn" class="hide" accept="image/*,application/pdf,text/*,.txt,.csv,.md">
+    <input type="file" id="camIn" class="hide" accept="image/*" capture="environment">
+    <form id="textForm" class="hide">
+      <textarea id="impTa" maxlength="20000" aria-label="Menu text" placeholder="Spicy tuna roll 7&#10;Miso soup 3&#10;Remove the eel roll"></textarea>
+      <button class="btn" type="submit">Scan</button>
+    </form>
+    <div class="msg err" id="impMsg" role="alert"></div>
+  </div>
+  <div id="impRun" class="hide" aria-live="polite">
+    <div class="scan" id="scanBox"></div>
+    <ol class="steps"><li id="st1">Getting it ready</li><li id="st2">AI is reading it</li><li id="st3">Updating the menu</li></ol>
+  </div>
+  <div id="impDone" class="hide">
+    <p class="sub" id="impSum" style="margin-bottom:20px"></p>
+    <div class="card res" id="impList"></div>
+    <button class="btn" type="button" id="impOk">Back to dashboard</button>
+    <p class="note"><button class="link" type="button" id="impUndo">Undo this import</button></p>
+  </div>
 </section>
 
 </main>
@@ -286,9 +356,9 @@ document.addEventListener("click",e=>{if(!e.target.closest(".datewrap"))setCal(f
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("cal").classList.contains("hide")){setCal(false);$("dateBtn").focus();}});
 
 /* ---- views ---- */
-const cur=()=>["pick","login","admin"].find(s=>!$(s).classList.contains("hide"));
-function show(id){["pick","login","admin"].forEach(s=>$(s).classList.toggle("hide",s!==id));
-  document.querySelector("main").classList.toggle("wide",id==="admin");if(id==="pick")drawPast();
+const cur=()=>["pick","login","admin","import"].find(s=>!$(s).classList.contains("hide"));
+function show(id){["pick","login","admin","import"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+  document.querySelector("main").classList.toggle("wide",id==="admin");window.scrollTo(0,0);if(id==="pick")drawPast();
   $("navAdmin").textContent=id!=="pick"?"Order form":(sess()?"Dashboard":"Staff login");}
 $("navAdmin").onclick=()=>{if(cur()!=="pick")return show("pick");
   if(sess()){show("admin");render();drawMenuEd();}else show("login");};
@@ -358,6 +428,60 @@ $("tableWrap").onclick=async e=>{const b=e.target.closest(".pay");if(!b)return;c
   b.disabled=true;
   try{await rpc("staff_set_paid",{...cred(),order_id:id,is_paid:to});}catch{alert("Couldn't update. Try again.");}
   await render();const n=document.querySelector(`.pay[data-id="${id}"]`);if(n)n.focus();};
+/* ---- AI menu import ---- */
+const impView=v=>["impPick","impRun","impDone"].forEach(x=>$(x).classList.toggle("hide",x!==v));
+const toDash=()=>{show("admin");render();drawMenuEd();};
+const nice2=m=>Object.assign(new Error(m),{nice:1});
+$("impOpen").onclick=()=>{show("import");impView("impPick");$("textForm").classList.add("hide");$("impText").classList.remove("on");$("impMsg").textContent="";};
+$("impBack").onclick=$("impOk").onclick=toDash;
+$("impText").onclick=()=>{$("textForm").classList.remove("hide");$("impText").classList.add("on");$("impTa").focus();};
+$("impFile").onclick=()=>$("fileIn").click();
+$("impCam").onclick=()=>$("camIn").click();
+$("fileIn").onchange=$("camIn").onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)runImport({file:f});};
+$("textForm").onsubmit=e=>{e.preventDefault();const t=$("impTa").value.trim();if(!t){$("impMsg").textContent="Paste or type something first.";return;}runImport({text:t});};
+const b64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(blob);});
+// Phone photos are huge; 1568px on the long side is plenty for reading a menu
+async function shrink(file){
+  let img;try{img=await createImageBitmap(file);}catch{throw nice2("Couldn't open that picture. Try a JPG or PNG.");}
+  const k=Math.min(1,1568/Math.max(img.width,img.height)),c=document.createElement("canvas");
+  c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+  return new Promise(ok=>c.toBlob(ok,"image/jpeg",.85));
+}
+async function runImport(src){
+  const step=n=>[1,2,3].forEach(i=>$("st"+i).className=i<n?"done":i===n?"now":""),box=$("scanBox");
+  const peek=(tag,cls)=>{const el=document.createElement(tag);if(cls)el.className=cls;box.replaceChildren(el);return el;};
+  box.replaceChildren();impView("impRun");step(1);$("impMsg").textContent="";
+  try{
+    const body={...cred()},f=src.file;
+    if(!f){body.text=src.text;peek("pre").textContent=src.text;}
+    else if(f.type.startsWith("image/")){const j=await shrink(f);body.file={type:"image/jpeg",data:await b64(j)};peek("img").src=URL.createObjectURL(j);}
+    else if(f.type==="application/pdf"){if(f.size>8e6)throw nice2("That PDF is too big (8 MB at most).");body.file={type:f.type,data:await b64(f)};peek("div","doc").textContent="📄";}
+    else{if(f.size>2e5)throw nice2("That file is too big to read as text.");body.text=await f.text();peek("pre").textContent=body.text;}
+    await loadMenu();const before=MENU.map(x=>({name:x.name,emoji:x.emoji,price:x.price}));
+    step(2);
+    let r;try{r=await fetch(SB_URL+"/functions/v1/menu-import",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});}
+    catch{throw nice2("Couldn't reach the server. Check your connection and try again.");}
+    const out=await r.json().catch(()=>({}));
+    if(r.status===404)throw nice2("The AI import isn't switched on yet.");
+    if(!r.ok||!Array.isArray(out.items))throw nice2(out.error||"The scan didn't work. Try again.");
+    step(3);
+    await rpc("staff_menu_replace",{...cred(),items:out.items});
+    await loadMenu();step(4);
+    drawDone(before,out);
+  }catch(e){impView("impPick");$("impMsg").textContent=e.nice?e.message:"Something went wrong. Try again.";}
+}
+function drawDone(before,out){
+  const old=new Map(before.map(x=>[x.name.toLowerCase(),x])),now=new Set(out.items.map(x=>x.name.toLowerCase()));
+  const row=(x,tag,cls)=>`<div class="${cls==="out"?"gone":""}"><span>${esc(x.emoji)}</span><span class="nm">${esc(x.name)}</span>${tag?`<em class="${cls}">${tag}</em>`:""}<span class="pz">${money(+x.price)}</span></div>`;
+  $("impSum").textContent=out.summary||"The menu is updated.";
+  $("impList").innerHTML=out.items.map(x=>{const o=old.get(x.name.toLowerCase());return row(x,!o?"New":(+o.price!==+x.price||o.emoji!==x.emoji)?"Changed":"",o?"chg":"");}).join("")
+    +before.filter(x=>!now.has(x.name.toLowerCase())).map(x=>row(x,"Removed","out")).join("")||`<div class="none">The menu is now empty.</div>`;
+  $("impUndo").onclick=async()=>{$("impUndo").disabled=true;
+    try{await rpc("staff_menu_replace",{...cred(),items:before});toDash();menuMsg("Import undone.");}catch{alert("Couldn't undo. Try again.");}
+    $("impUndo").disabled=false;};
+  impView("impDone");
+}
+
 async function render(){
   const s=sess();if(!s)return show("login");
   $("hello").textContent=`Hi, ${s.name}`;

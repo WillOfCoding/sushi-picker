@@ -113,3 +113,22 @@ end $$;
 
 grant execute on function public.staff_menu_save(text, text, uuid, text, text, numeric),
   public.staff_menu_delete(text, text, uuid) to anon;
+
+-- Swaps the whole menu for the given list ([{name, emoji, price}, ...]). Used by the AI import and its undo.
+create or replace function public.staff_menu_replace(u text, p text, items jsonb) returns int
+language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  perform staff_login(u, p);
+  if jsonb_typeof(items) <> 'array' or jsonb_array_length(items) > 100 then
+    raise exception 'bad menu' using errcode = '22023';
+  end if;
+  delete from menu where true;
+  insert into menu (name, emoji, price, pos)
+  select left(trim(x->>'name'), 40), coalesce(nullif(trim(x->>'emoji'), ''), '🍣'), (x->>'price')::numeric, i
+    from jsonb_array_elements(items) with ordinality as t(x, i);
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+grant execute on function public.staff_menu_replace(text, text, jsonb) to anon;
