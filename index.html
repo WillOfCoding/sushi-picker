@@ -116,30 +116,42 @@ td.t{color:var(--mute)}
 .impcta span{flex:1;display:flex;flex-direction:column;line-height:1.3}
 .impcta b{font-weight:600}
 .impcta small{font-size:.84rem;opacity:.9}
-.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.choice{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;text-align:left;cursor:pointer;transition:.15s}
-.choice:hover,.choice.on{border-color:var(--accent);background:var(--tint)}
-.choice:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(228,87,46,.25)}
-.choice i{font-style:normal;font-size:1.5rem;margin-bottom:6px}
-.choice span{display:flex;flex-direction:column;gap:2px}
-.choice b{font-weight:600;font-size:.95rem}
-.choice small{color:var(--mute);font-size:.82rem;line-height:1.35}
-textarea{display:block;width:100%;min-height:150px;padding:12px 14px;margin-bottom:12px;border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;background:var(--card);resize:vertical}
-textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(228,87,46,.15)}
-.scan{position:relative;height:240px;border-radius:16px;overflow:hidden;background:#18181b;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
-.scan img{width:100%;height:100%;object-fit:cover;opacity:.7}
-.scan pre{align-self:stretch;flex:1;margin:0;padding:18px;color:#d4d4d8;font:13px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow:hidden;opacity:.8}
-.scan .doc{font-size:3.5rem}
-.scan::after{content:"";position:absolute;left:0;right:0;top:0;height:64px;background:linear-gradient(to bottom,rgba(228,87,46,0),rgba(228,87,46,.35));border-bottom:2px solid var(--accent);animation:sweep 1.8s ease-in-out infinite alternate}
-@keyframes sweep{from{transform:translateY(-64px)}to{transform:translateY(240px)}}
-.steps{list-style:none;margin:0;padding:0}
-.steps li{display:flex;align-items:center;gap:12px;padding:9px 0;color:#a1a1aa}
-.steps li::before{content:"";width:18px;height:18px;flex:none;border-radius:50%;border:2px solid var(--line)}
-.steps li.now{color:var(--ink);font-weight:600}
-.steps li.now::before{border-color:var(--line);border-top-color:var(--accent);animation:spin .7s linear infinite}
-.steps li.done{color:var(--ink)}
-.steps li.done::before{border-color:var(--ok);background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center/11px no-repeat}
-@keyframes spin{to{transform:rotate(360deg)}}
+.chat{display:flex;flex-direction:column;gap:10px;min-height:calc(100vh - 330px);padding-bottom:12px}
+.bub{max-width:85%;padding:10px 14px;border-radius:18px;font-size:.95rem;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;animation:pop .14s ease-out}
+.bub.me{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:6px}
+.bub.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+.bub.bad{background:#fdf0ee;border-color:#f5d0c9;color:#c0392b}
+.bub img{display:block;max-width:min(240px,100%);max-height:240px;border-radius:12px;margin:2px 0 6px}
+.bub .att{display:block;font-size:.84rem;opacity:.8;margin-bottom:4px}
+.bub .res{margin:10px 0 2px;padding:2px 12px;white-space:normal;border-radius:12px;background:var(--bg)}
+.bub .res div{font-size:.88rem;padding:7px 0}
+.bub .undo{white-space:normal;font-size:.84rem;margin-top:4px}
+.bub .undo .link{padding:2px 0;font-size:.84rem;text-decoration:underline}
+.bub .undone{color:var(--mute);font-size:.84rem}
+.dots{display:flex;gap:4px;padding:14px 16px}
+.dots i{width:7px;height:7px;border-radius:50%;background:#a1a1aa;animation:blink 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.hello{text-align:center;padding:28px 8px 8px}
+.hello i{font-style:normal;font-size:2.2rem}
+.hello p{color:var(--mute);margin:6px auto 18px;max-width:420px}
+.sugg{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.sugg button{border:1px solid var(--line);border-radius:999px;background:var(--card);padding:8px 14px;font:inherit;font-size:.86rem;color:var(--ink);cursor:pointer}
+.sugg button:hover{border-color:var(--accent);background:var(--tint)}
+.composer{position:sticky;bottom:0;background:var(--bg);padding:10px 0 calc(14px + env(safe-area-inset-bottom))}
+.pend{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin:0 0 8px;padding:5px 6px 5px 6px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:.85rem}
+.pend img{width:36px;height:36px;object-fit:cover;border-radius:8px}
+.pend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pend button{border:0;background:none;font-size:1.1rem;line-height:1;color:var(--mute);cursor:pointer;padding:4px 6px}
+.cbox{display:flex;align-items:flex-end;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:5px;transition:border-color .15s,box-shadow .15s}
+.cbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(228,87,46,.15)}
+.cbox textarea,.cbox textarea:focus{flex:1;min-height:0;height:40px;max-height:160px;margin:0;padding:9px 6px;border:0;box-shadow:none;background:none;resize:none;line-height:1.4}
+.ib{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:none;color:var(--mute);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ib:hover{background:#f4f4f5;color:var(--ink)}
+.ib.go{background:var(--accent);color:#fff}
+.ib.go:hover{background:var(--accent-d)}
+.ib:disabled{opacity:.4;cursor:default}
+.ib:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(228,87,46,.3)}
 .res{padding:6px 16px;margin-bottom:20px}
 .res div{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:.95rem}
 .res div+div{border-top:1px solid var(--line)}
@@ -148,7 +160,7 @@ textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(22
 .res em{font-style:normal;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:#eefaf4;color:var(--ok)}
 .res em.chg{background:#fef3c7;color:#b45309}
 .res em.out{background:#f4f4f5;color:var(--mute)}
-@media (prefers-reduced-motion:reduce){.scan::after{animation:none;transform:translateY(88px)}}
+@media (prefers-reduced-motion:reduce){.dots i{animation:none;opacity:.6}}
 @media (max-width:640px){
   header{padding:16px 16px 8px}
   main{padding:16px 16px 64px}
@@ -174,10 +186,8 @@ textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(22
   td.cash{grid-area:cash;justify-self:end}
   .pay{padding:10px 16px 10px 13px;font-size:.88rem}
   .sec{margin-top:32px}
-  .choices{grid-template-columns:1fr}
-  .choice{flex-direction:row;align-items:center;gap:12px;padding:14px 16px}
-  .choice i{margin:0}
-  .scan{height:200px}
+  .chat{min-height:calc(100vh - 260px)}
+  .bub{max-width:90%}
   .menued{padding:6px 14px}
   .mrow{padding:12px 0}
   .mrow input,.sm{height:46px}
@@ -257,37 +267,24 @@ textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(22
   <button class="link" id="clear" style="margin-top:16px">Clear all submissions</button>
   <h2 class="sec">Menu</h2>
   <p>Change the emoji, name or price and press Save. Customers see changes right away.</p>
-  <button type="button" class="impcta" id="impOpen"><i>✨</i><span><b>Import items with AI</b><small>Paste text, upload a file or snap a photo of a menu</small></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  <button type="button" class="impcta" id="impOpen"><i>✨</i><span><b>Edit the menu with AI</b><small>Chat with it, send a menu, a file or a photo</small></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
   <div class="card menued" id="menuEd"></div>
   <div class="msg" id="menuMsg" role="status"></div>
 </section>
 
 <section id="import" class="hide">
-  <div class="bar"><h1 style="margin:0">Import items</h1><button class="link" id="impBack">Back</button></div>
-  <div id="impPick">
-    <p class="sub">Give the AI a menu or a few instructions and it updates yours: items, prices and emoji.</p>
-    <div class="choices">
-      <button type="button" class="choice" id="impText"><i>📝</i><span><b>Paste text</b><small>A menu, a list or instructions</small></span></button>
-      <button type="button" class="choice" id="impFile"><i>📎</i><span><b>Upload</b><small>A photo, PDF or text file</small></span></button>
-      <button type="button" class="choice" id="impCam"><i>📷</i><span><b>Take a photo</b><small>Snap a menu with your camera</small></span></button>
-    </div>
+  <div class="bar"><h1 style="margin:0">Menu assistant</h1><span><button class="link" id="chatNew" style="margin-right:16px">New chat</button><button class="link" id="impBack">Back</button></span></div>
+  <div class="chat" id="chat" aria-live="polite"></div>
+  <div class="composer">
+    <div class="pend hide" id="pend"></div>
+    <form class="cbox" id="chatForm">
+      <button type="button" class="ib" id="impFile" aria-label="Attach a photo, PDF or text file" title="Attach a file"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 01-7.8-7.8l8.6-8.6a3.7 3.7 0 015.2 5.2l-8.6 8.6a1.8 1.8 0 01-2.6-2.6l7.9-7.9"/></svg></button>
+      <button type="button" class="ib" id="impCam" aria-label="Take a photo" title="Take a photo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg></button>
+      <textarea id="chatTa" rows="1" maxlength="20000" aria-label="Message" placeholder="Ask or tell it what to change…"></textarea>
+      <button type="submit" class="ib go" id="chatSend" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </form>
     <input type="file" id="fileIn" class="hide" accept="image/*,application/pdf,text/*,.txt,.csv,.md">
     <input type="file" id="camIn" class="hide" accept="image/*" capture="environment">
-    <form id="textForm" class="hide">
-      <textarea id="impTa" maxlength="20000" aria-label="Menu text" placeholder="Spicy tuna roll 7&#10;Miso soup 3&#10;Remove the eel roll"></textarea>
-      <button class="btn" type="submit">Scan</button>
-    </form>
-    <div class="msg err" id="impMsg" role="alert"></div>
-  </div>
-  <div id="impRun" class="hide" aria-live="polite">
-    <div class="scan" id="scanBox"></div>
-    <ol class="steps"><li id="st1">Getting it ready</li><li id="st2">AI is reading it</li><li id="st3">Updating the menu</li></ol>
-  </div>
-  <div id="impDone" class="hide">
-    <p class="sub" id="impSum" style="margin-bottom:20px"></p>
-    <div class="card res" id="impList"></div>
-    <button class="btn" type="button" id="impOk">Back to dashboard</button>
-    <p class="note"><button class="link" type="button" id="impUndo">Undo this import</button></p>
   </div>
 </section>
 
@@ -435,61 +432,99 @@ $("tableWrap").onclick=async e=>{const b=e.target.closest(".pay");if(!b)return;c
   b.disabled=true;
   try{await rpc("staff_set_paid",{...cred(),order_id:id,is_paid:to});}catch{alert("Couldn't update. Try again.");}
   await render();const n=document.querySelector(`.pay[data-id="${id}"]`);if(n)n.focus();};
-/* ---- AI menu import ---- */
-const impView=v=>["impPick","impRun","impDone"].forEach(x=>$(x).classList.toggle("hide",x!==v));
+/* ---- AI menu assistant (chat) ---- */
 const toDash=()=>{show("admin");render();drawMenuEd();};
 const nice2=m=>Object.assign(new Error(m),{nice:1});
-$("impOpen").onclick=()=>{show("import");impView("impPick");$("textForm").classList.add("hide");$("impText").classList.remove("on");$("impMsg").textContent="";};
-$("impBack").onclick=$("impOk").onclick=toDash;
-$("impText").onclick=()=>{$("textForm").classList.remove("hide");$("impText").classList.add("on");$("impTa").focus();};
+const CHAT=()=>"sushi_chat_"+(sess()||{}).u;
+let chat=[],pend=null,busy=false;
+const saveChat=()=>{for(;;){try{localStorage.setItem(CHAT(),JSON.stringify(chat.slice(-80)));return;}
+  catch{const m=chat.find(x=>x.file&&x.file.thumb);if(!m)return;delete m.file.thumb;}}};
+$("impOpen").onclick=()=>{try{chat=JSON.parse(localStorage.getItem(CHAT())||"[]");}catch{chat=[];}
+  show("import");drawChat();setPend(null);if(matchMedia("(hover:hover)").matches)$("chatTa").focus();};
+$("impBack").onclick=toDash;
+$("chatNew").onclick=()=>{if(chat.length&&!confirm("Start a new chat? This one will be cleared."))return;chat=[];saveChat();drawChat();$("chatTa").focus();};
 $("impFile").onclick=()=>$("fileIn").click();
 $("impCam").onclick=()=>$("camIn").click();
-$("fileIn").onchange=$("camIn").onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)runImport({file:f});};
-$("textForm").onsubmit=e=>{e.preventDefault();const t=$("impTa").value.trim();if(!t){$("impMsg").textContent="Paste or type something first.";return;}runImport({text:t});};
+$("fileIn").onchange=$("camIn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{setPend(await prep(f));}catch(err){chatErr(err.nice?err.message:"Couldn't open that file.");}$("chatTa").focus();};
+const ta=$("chatTa"),grow=()=>{ta.style.height="40px";ta.style.height=Math.min(160,ta.scrollHeight)+"px";};
+ta.oninput=grow;
+ta.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey&&matchMedia("(hover:hover)").matches){e.preventDefault();$("chatForm").requestSubmit();}};
 const b64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(blob);});
 // Phone photos are huge; 1568px on the long side is plenty for reading a menu
-async function shrink(file){
+async function shrink(file,max,q){
   let img;try{img=await createImageBitmap(file);}catch{throw nice2("Couldn't open that picture. Try a JPG or PNG.");}
-  const k=Math.min(1,1568/Math.max(img.width,img.height)),c=document.createElement("canvas");
+  const k=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");
   c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-  return new Promise(ok=>c.toBlob(ok,"image/jpeg",.85));
+  return new Promise(ok=>c.toBlob(ok,"image/jpeg",q));
 }
-async function runImport(src){
-  const step=n=>[1,2,3].forEach(i=>$("st"+i).className=i<n?"done":i===n?"now":""),box=$("scanBox");
-  const peek=(tag,cls)=>{const el=document.createElement(tag);if(cls)el.className=cls;box.replaceChildren(el);return el;};
-  box.replaceChildren();impView("impRun");step(1);$("impMsg").textContent="";
+async function prep(f){
+  const name=f.name||"photo.jpg";
+  if(f.type.startsWith("image/")){const big=await shrink(f,1568,.85),small=await shrink(f,360,.6);
+    return {name,type:"image/jpeg",data:await b64(big),thumb:"data:image/jpeg;base64,"+await b64(small)};}
+  if(f.type==="application/pdf"){if(f.size>8e6)throw nice2("That PDF is too big (8 MB at most).");return {name,type:f.type,data:await b64(f)};}
+  if(f.size>2e5)throw nice2("That file is too big to read as text.");
+  return {name,text:await f.text()};
+}
+function setPend(p){pend=p;$("pend").classList.toggle("hide",!p);
+  $("pend").innerHTML=p?`${p.thumb?`<img src="${p.thumb}" alt="">`:"<span>"+(p.type==="application/pdf"?"📄":"📝")+"</span>"}<span>${esc(p.name)}</span><button type="button" aria-label="Remove attachment">×</button>`:"";}
+$("pend").onclick=e=>{if(e.target.closest("button"))setPend(null);};
+const chatErr=t=>{chat.push({role:"assistant",text:t,bad:1});drawChat();};
+function diffHtml(before,items){
+  const old=new Map(before.map(x=>[x.name.toLowerCase(),x])),now=new Set(items.map(x=>x.name.toLowerCase()));
+  const row=(x,tag,cls)=>`<div class="${cls==="out"?"gone":""}"><span>${esc(x.emoji)}</span><span class="nm">${esc(x.name)}</span>${tag?`<em class="${cls}">${tag}</em>`:""}<span class="pz">${money(+x.price)}</span></div>`;
+  const rows=items.map(x=>{const o=old.get(x.name.toLowerCase());const tag=!o?"New":(+o.price!==+x.price||o.emoji!==x.emoji)?"Changed":"";return tag?row(x,tag,o?"chg":""):"";}).join("")
+    +before.filter(x=>!now.has(x.name.toLowerCase())).map(x=>row(x,"Removed","out")).join("");
+  return rows||(items.length?"<div>Reordered the menu.</div>":"<div>The menu is now empty.</div>");
+}
+function drawChat(){
+  const lastCh=chat.map(x=>!!(x.change&&!x.change.undone)).lastIndexOf(true);
+  $("chat").innerHTML=(chat.length?chat.map((m,i)=>{
+    const f=m.file?(m.file.thumb?`<img src="${m.file.thumb}" alt="${esc(m.file.name)}">`:`<span class="att">${m.file.type==="application/pdf"?"📄":"📎"} ${esc(m.file.name)}</span>`):"";
+    const ch=m.change?`<div class="card res">${diffHtml(m.change.before,m.change.items)}</div>`+(m.change.undone?`<div class="undone">Undone</div>`:i===lastCh?`<div class="undo"><button class="link" data-undo="${i}">Undo this change</button></div>`:""):"";
+    return `<div class="bub ${m.role==="user"?"me":"ai"}${m.bad?" bad":""}">${f}${esc(m.text||"")}${ch}</div>`;}).join("")
+    :`<div class="hello"><i>✨</i><p>I know your menu and your orders. Ask me anything, tell me what to change, or send a photo or file of a menu.</p><div class="sugg"><button type="button">Add miso soup for $3</button><button type="button">What's been ordered the most?</button><button type="button">Raise every price by $1</button><button type="button">Who hasn't paid yet?</button></div></div>`)
+    +(busy?`<div class="bub ai dots" aria-label="Thinking"><i></i><i></i><i></i></div>`:"");
+  $("chatSend").disabled=busy;
+  requestAnimationFrame(()=>window.scrollTo(0,document.body.scrollHeight));
+}
+$("chat").onclick=async e=>{
+  const s=e.target.closest(".sugg button");if(s){ta.value=s.textContent;grow();return $("chatForm").requestSubmit();}
+  const u=e.target.closest("[data-undo]");if(!u||busy)return;
+  const m=chat[+u.dataset.undo];u.disabled=true;
+  try{await rpc("staff_menu_replace",{...cred(),items:m.change.before});m.change.undone=true;saveChat();loadMenu();drawChat();}
+  catch(err){if(err.code==="28000")return toLogin();u.disabled=false;alert("Couldn't undo. Try again.");}
+};
+const toLogin=()=>{sessionStorage.removeItem(SESSION);show("login");};
+// What the AI sees of the history: text only, plus notes about attachments and menu changes
+const forAI=(m,last)=>({role:m.role,text:(m.text||"")+(m.file&&m.file.text?`\n\n[${m.file.name}]\n${m.file.text}`:"")
+  +(m.change?(m.change.undone?"\n[You changed the menu here, but staff pressed Undo, so that change was reversed.]":"\n[You changed the menu here.]"):"")+(m.failed?"\n[The menu change didn't save.]":""),
+  file:m.file&&!m.file.text?(last&&m.file.data?{type:m.file.type,data:m.file.data,name:m.file.name}:{name:m.file.name}):undefined});
+$("chatForm").onsubmit=async e=>{e.preventDefault();if(busy)return;
+  const text=ta.value.trim();if(!text&&!pend)return ta.focus();
+  const msg={role:"user",text};if(pend)msg.file=pend;
+  chat.push(msg);ta.value="";grow();setPend(null);busy=true;drawChat();
+  const hist=chat.filter(m=>!m.bad);
   try{
-    const body={...cred()},f=src.file;
-    if(!f){body.text=src.text;peek("pre").textContent=src.text;}
-    else if(f.type.startsWith("image/")){const j=await shrink(f);body.file={type:"image/jpeg",data:await b64(j)};peek("img").src=URL.createObjectURL(j);}
-    else if(f.type==="application/pdf"){if(f.size>8e6)throw nice2("That PDF is too big (8 MB at most).");body.file={type:f.type,data:await b64(f)};peek("div","doc").textContent="📄";}
-    else{if(f.size>2e5)throw nice2("That file is too big to read as text.");body.text=await f.text();peek("pre").textContent=body.text;}
-    await loadMenu();const before=MENU.map(x=>({name:x.name,emoji:x.emoji,price:x.price}));
-    step(2);
-    let r;try{r=await fetch(SB_URL+"/functions/v1/menu-import",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});}
+    let r;try{r=await fetch(SB_URL+"/functions/v1/menu-import",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({...cred(),today:new Date().toDateString(),messages:hist.map((m,i)=>forAI(m,i===hist.length-1))})});}
     catch{throw nice2("Couldn't reach the server. Check your connection and try again.");}
     const out=await r.json().catch(()=>({}));
-    if(r.status===404)throw nice2("The AI import isn't switched on yet.");
-    if(!r.ok||!Array.isArray(out.items))throw nice2(out.error||"The scan didn't work. Try again.");
-    step(3);
-    await rpc("staff_menu_replace",{...cred(),items:out.items});
-    await loadMenu();step(4);
-    drawDone(before,out);
-  }catch(e){impView("impPick");$("impMsg").textContent=e.nice?e.message:"Something went wrong. Try again.";}
-}
-function drawDone(before,out){
-  const old=new Map(before.map(x=>[x.name.toLowerCase(),x])),now=new Set(out.items.map(x=>x.name.toLowerCase()));
-  const row=(x,tag,cls)=>`<div class="${cls==="out"?"gone":""}"><span>${esc(x.emoji)}</span><span class="nm">${esc(x.name)}</span>${tag?`<em class="${cls}">${tag}</em>`:""}<span class="pz">${money(+x.price)}</span></div>`;
-  $("impSum").textContent=out.summary||"The menu is updated.";
-  $("impList").innerHTML=out.items.map(x=>{const o=old.get(x.name.toLowerCase());return row(x,!o?"New":(+o.price!==+x.price||o.emoji!==x.emoji)?"Changed":"",o?"chg":"");}).join("")
-    +before.filter(x=>!now.has(x.name.toLowerCase())).map(x=>row(x,"Removed","out")).join("")||`<div class="none">The menu is now empty.</div>`;
-  $("impUndo").onclick=async()=>{$("impUndo").disabled=true;
-    try{await rpc("staff_menu_replace",{...cred(),items:before});toDash();menuMsg("Import undone.");}catch{alert("Couldn't undo. Try again.");}
-    $("impUndo").disabled=false;};
-  impView("impDone");
-}
+    if(r.status===401){busy=false;return toLogin();}
+    if(r.status===404)throw nice2("The menu assistant isn't switched on yet.");
+    if(!r.ok||typeof out.reply!=="string")throw nice2(out.error||"The AI didn't answer. Try again.");
+    const a={role:"assistant",text:out.reply};
+    if(Array.isArray(out.items)){
+      await loadMenu();const before=MENU.map(x=>({name:x.name,emoji:x.emoji,price:x.price}));
+      try{await rpc("staff_menu_replace",{...cred(),items:out.items});a.change={before,items:out.items};loadMenu();}
+      catch{a.failed=1;a.text+="\n\n(Couldn't save that change to the menu. Try again.)";}
+    }
+    if(msg.file)delete msg.file.data;
+    chat.push(a);
+  }catch(err){if(msg.file)delete msg.file.data;chatErr(err.nice?err.message:"Something went wrong. Try again.");}
+  busy=false;saveChat();drawChat();
+};
 
-async function render(){
   const s=sess();if(!s)return show("login");
   $("hello").textContent=`Hi, ${s.name}`;
   let o;
