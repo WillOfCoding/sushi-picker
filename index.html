@@ -291,8 +291,8 @@ td.t{color:var(--mute)}
 
 </main>
 <script>
-// Starter menu, shown until the live one loads from the database
-let MENU=[["Salmon Nigiri","🍣",5],["Tuna Roll","🍙",6],["California Roll","🥑",6],["Shrimp Tempura","🍤",8],["Eel Roll","🐟",9],["Veggie Roll","🥒",5]].map(([name,emoji,price],i)=>({id:"d"+i,name,emoji,price}));
+// Filled from the database; menuState is "loading" until the first load finishes, then "ok" or "failed"
+let MENU=[],menuState="loading";
 // Supabase project (the publishable key is meant to be public; the database rules do the protecting)
 const SB_URL="https://ielxhqawejlkavlqccsa.supabase.co", SB_KEY="sb_publishable_ahBumScCxZyok2TrV-0RQA_XC0yiaPn";
 const MINE="sushi_my_orders", SESSION="sushi_session";
@@ -315,7 +315,7 @@ const qty={}, q=id=>qty[id]||0;
 const cartItems=()=>MENU.map(x=>({name:x.name,price:x.price,qty:q(x.id)})).filter(x=>x.qty);
 const sum=items=>items.reduce((t,x)=>t+x.price*x.qty,0);
 function drawMenu(){
-  $("grid").innerHTML=MENU.map(x=>{const n=esc(x.name),c=q(x.id);return `<div class="opt${c?" on":""}" data-id="${x.id}"><i>${esc(x.emoji)}</i><div class="info"><b>${n}</b><small>${money(x.price)}</small></div><div class="step">${c?`<button type="button" data-d="-1" aria-label="Remove one ${n}">−</button><span aria-label="${c} in cart">${c}</span>`:""}<button type="button" data-d="1" aria-label="Add ${n}">+</button></div></div>`;}).join("")||`<div class="none">Nothing on the menu yet.</div>`;
+  $("grid").innerHTML=MENU.map(x=>{const n=esc(x.name),c=q(x.id);return `<div class="opt${c?" on":""}" data-id="${x.id}"><i>${esc(x.emoji)}</i><div class="info"><b>${n}</b><small>${money(x.price)}</small></div><div class="step">${c?`<button type="button" data-d="-1" aria-label="Remove one ${n}">−</button><span aria-label="${c} in cart">${c}</span>`:""}<button type="button" data-d="1" aria-label="Add ${n}">+</button></div></div>`;}).join("")||`<div class="none">${menuState==="loading"?"Loading menu…":menuState==="failed"?"Couldn't load the menu. Check your connection and refresh the page.":"Nothing on the menu yet."}</div>`;
   const items=cartItems(),t=sum(items);
   $("cart").classList.toggle("hide",!items.length);
   $("cart").innerHTML=items.map(x=>`<div><span><span class="q">${x.qty} ×</span>${esc(x.name)}</span><span>${money(x.price*x.qty)}</span></div>`).join("")+`<div class="tot"><span>Total</span><span>${money(t)}</span></div>`;
@@ -326,8 +326,9 @@ $("grid").onclick=e=>{const c=e.target.closest(".opt");if(!c)return;const id=c.d
   if(b){const c2=$("grid").querySelector(`.opt[data-id="${id}"]`);(c2.querySelector(`[data-d="${d}"]`)||c2.querySelector("button")).focus();}};
 drawMenu();
 async function loadMenu(){
-  try{const r=await fetch(SB_URL+"/rest/v1/menu?select=id,name,emoji,price&order=pos,created_at",{headers:{apikey:SB_KEY}});if(!r.ok)return false;
-    MENU=(await r.json()).map(x=>({...x,price:+x.price}));drawMenu();return true;}catch{return false;}
+  const fail=()=>{if(menuState==="loading"){menuState="failed";drawMenu();}return false;};
+  try{const r=await fetch(SB_URL+"/rest/v1/menu?select=id,name,emoji,price&order=pos,created_at",{headers:{apikey:SB_KEY}});if(!r.ok)return fail();
+    MENU=(await r.json()).map(x=>({...x,price:+x.price}));menuState="ok";drawMenu();return true;}catch{return fail();}
 }
 loadMenu();
 
