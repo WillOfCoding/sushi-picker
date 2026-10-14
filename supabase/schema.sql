@@ -132,3 +132,81 @@ begin
 end $$;
 
 grant execute on function public.staff_menu_replace(text, text, jsonb) to anon;
+
+-- Login with lockout. Three wrong tries in a row lock that username for 15 minutes.
+-- A good login returns a session token; the dashboard sends that token (not the password) as "p" from then on.
+create table if not exists public.staff_attempts (
+  username text primary key,
+  fails int not null default 0,
+  locked_until timestamptz,
+  updated_at timestamptz not null default now()
+);
+alter table public.staff_attempts enable row level security;
+create table if not exists public.staff_sessions (
+  token uuid primary key default gen_random_uuid(),
+  username text not null references public.staff(username) on delete cascade,
+  expires_at timestamptz not null default now() + interval '12 hours'
+);
+alter table public.staff_sessions enable row level security;
+
+create or replace function public.staff_signin(u text, p text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  n text := left(lower(trim(coalesce(u, ''))), 40);
+  a staff_attempts;
+  d text;
+  t uuid;
+  f int;
+begin
+  delete from staff_attempts where updated_at < now() - interval '1 day';
+  delete from staff_sessions where expires_at < now();
+  select * into a from staff_attempts where username = n for update;
+  if a.locked_until > now() then
+    return jsonb_build_object('ok', false, 'locked', true,
+      'minutes', greatest(1, ceil(extract(epoch from a.locked_until - now()) / 60)::int));
+  end if;
+  select display into d from staff
+   where username = n and pass_sha256 = encode(sha256(convert_to(coalesce(p, ''), 'UTF8')), 'hex');
+  if d is null then
+    perform pg_sleep(0.5);
+    insert into staff_attempts (username, fails) values (n, 1)
+    on conflict (username) do update
+      set fails = case when staff_attempts.locked_until is null then staff_attempts.fails + 1 else 1 end,
+          locked_until = null, updated_at = now()
+    returning fails into f;
+    if f >= 3 then
+      update staff_attempts set locked_until = now() + interval '15 minutes' where username = n;
+      return jsonb_build_object('ok', false, 'locked', true, 'minutes', 15);
+    end if;
+    return jsonb_build_object('ok', false, 'locked', false, 'left', 3 - f);
+  end if;
+  delete from staff_attempts where username = n;
+  insert into staff_sessions (username) values (n) returning token into t;
+  return jsonb_build_object('ok', true, 'name', d, 'token', t);
+end $$;
+
+-- Checks a session token. Every other staff_* function calls this first.
+create or replace function public.staff_login(u text, p text) returns text
+language plpgsql security definer set search_path = public as $$
+declare d text; t uuid;
+begin
+  begin t := p::uuid; exception when others then t := null; end;
+  select s.display into d from staff_sessions ss join staff s on s.username = ss.username
+   where ss.token = t and ss.username = lower(trim(u)) and ss.expires_at > now();
+  if d is null then
+    raise exception 'unauthorized' using errcode = '28000';
+  end if;
+  return d;
+end $$;
+
+create or replace function public.staff_signout(u text, p text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  perform staff_login(u, p);
+  delete from staff_sessions where token = p::uuid;
+end $$;
+
+grant execute on function public.staff_signin(text, text), public.staff_signout(text, text) to anon;
+
+-- More staff are added in the SQL editor so their password hashes stay out of this public file:
+--   insert into public.staff values ('elliot', 'Elliot', encode(sha256(convert_to('<password>', 'UTF8')), 'hex'));

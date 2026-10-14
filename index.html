@@ -396,11 +396,14 @@ drawPast();
 $("loginForm").onsubmit=async e=>{e.preventDefault();
   const u=$("user").value.trim(),p=$("pw").value,m=$("loginMsg"),btn=e.target.querySelector(".btn");
   btn.disabled=true;m.textContent="";
-  try{const name=await rpc("staff_login",{u,p});sessionStorage.setItem(SESSION,JSON.stringify({u,p,name}));e.target.reset();show("admin");drawMenuEd();await render();}
-  catch(err){m.textContent=err.code==="28000"?"Wrong username or password.":"Couldn't reach the server. Try again.";}
+  try{const r=await rpc("staff_signin",{u,p});
+    if(r.ok){sessionStorage.setItem(SESSION,JSON.stringify({u,p:r.token,name:r.name}));e.target.reset();show("admin");drawMenuEd();await render();}
+    else{$("pw").value="";$("pw").focus();
+      m.textContent=r.locked?`Too many wrong tries. This login is locked for ${r.minutes} ${r.minutes===1?"minute":"minutes"}.`:`Wrong username or password. ${r.left} ${r.left===1?"try":"tries"} left.`;}}
+  catch{m.textContent="Couldn't reach the server. Try again.";}
   btn.disabled=false;};
 
-$("logout").onclick=()=>{sessionStorage.removeItem(SESSION);show("pick");};
+$("logout").onclick=()=>{if(sess())rpc("staff_signout",cred()).catch(()=>{});sessionStorage.removeItem(SESSION);show("pick");};
 $("clear").onclick=async()=>{if(!confirm("Delete all submissions for everyone? This can't be undone."))return;
   try{await rpc("staff_clear",cred());}catch{alert("Couldn't clear. Try again.");}render();};
 $("refresh").onclick=()=>{render();drawMenuEd();};
