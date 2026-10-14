@@ -109,6 +109,39 @@ td.t{color:var(--mute)}
 .sm.go{background:var(--ink);border-color:var(--ink);color:#fff}
 .sm.del{color:#c0392b}
 .sm:disabled{opacity:.5;cursor:default}
+@media (max-width:640px){
+  header{padding:16px 16px 8px}
+  main{padding:16px 16px 64px}
+  #admin .bar{margin-bottom:16px}
+  #admin .bar h1{font-size:1.4rem}
+  #admin .link{padding:10px 0}
+  .stats{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px 16px;padding:0 16px 4px;scrollbar-width:none}
+  .stats::-webkit-scrollbar{display:none}
+  .chip{flex:none}
+  .tw{overflow:visible}
+  .tw table,.tw tbody{display:block}
+  .tw thead{display:none}
+  .tw tr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"who tot" "items items" "want cash" "t cash";gap:2px 12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .tw tr:last-child{border-bottom:0}
+  .tw td{padding:0;border:0;white-space:normal;min-width:0}
+  td.who{grid-area:who;font-weight:600;font-size:1rem;overflow-wrap:anywhere}
+  td.tot{grid-area:tot;font-size:1rem;text-align:right}
+  td.items{grid-area:items;color:var(--mute);margin:2px 0 8px}
+  td.want{grid-area:want;font-size:.88rem}
+  td.want::before{content:"For "}
+  td.t{grid-area:t;font-size:.8rem}
+  td.t::before{content:"Ordered "}
+  td.cash{grid-area:cash;justify-self:end}
+  .pay{padding:10px 16px 10px 13px;font-size:.88rem}
+  .sec{margin-top:32px}
+  .menued{padding:6px 14px}
+  .mrow{padding:12px 0}
+  .mrow input,.sm{height:46px}
+  .mrow .em{width:52px}
+  .mrow .nm{flex:1 1 calc(100% - 152px)}
+  .mrow .pr{width:84px}
+  .mrow .sm{flex:1}
+}
 </style>
 </head>
 <body>
@@ -335,7 +368,7 @@ async function render(){
   const counts={};let owed=0,got=0;
   o.forEach(x=>{x.items.forEach(it=>counts[it.name]=(counts[it.name]||0)+it.qty);x.paid?got+=+x.total:owed+=+x.total;});
   $("stats").innerHTML=`<span class="chip"><b>${o.length}</b> orders</span><span class="chip">Not paid <b>${money(owed)}</b></span><span class="chip">Paid <b>${money(got)}</b></span>`+Object.entries(counts).map(([k,v])=>`<span class="chip">${esc(k)} <b>${v}</b></span>`).join("");
-  $("tableWrap").innerHTML=o.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Order</th><th>Total</th><th>Wanted for</th><th>Submitted</th><th>Cash</th></tr></thead><tbody>${o.map(x=>`<tr><td>${esc(x.name)}</td><td class="items">${x.items.map(it=>`${+it.qty} × ${esc(String(it.name))}`).join("<br>")}</td><td><b>${money(+x.total)}</b></td><td>${nice(fromKey(x.day))}</td><td class="t">${new Date(x.created_at).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</td><td><button type="button" class="pay${x.paid?" paid":""}" data-id="${x.id}" aria-pressed="${!!x.paid}" title="Click to change">${x.paid?"Paid":"Not paid"}</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="none card">No submissions yet.</div>`;
+  $("tableWrap").innerHTML=o.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Order</th><th>Total</th><th>Wanted for</th><th>Submitted</th><th>Cash</th></tr></thead><tbody>${o.map(x=>`<tr><td class="who">${esc(x.name)}</td><td class="items">${x.items.map(it=>`${+it.qty} × ${esc(String(it.name))}`).join("<br>")}</td><td class="tot"><b>${money(+x.total)}</b></td><td class="want">${nice(fromKey(x.day))}</td><td class="t">${new Date(x.created_at).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</td><td class="cash"><button type="button" class="pay${x.paid?" paid":""}" data-id="${x.id}" aria-pressed="${!!x.paid}" title="Click to change">${x.paid?"Paid":"Not paid"}</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="none card">No submissions yet.</div>`;
 }
 </script>
 </body>
