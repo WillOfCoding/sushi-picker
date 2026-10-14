@@ -109,10 +109,13 @@ td.t{color:var(--mute)}
 .sm.go{background:var(--ink);border-color:var(--ink);color:#fff}
 .sm.del{color:#c0392b}
 .sm:disabled{opacity:.5;cursor:default}
-.sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:44px 0 4px}
-.sechead .sec{margin:0}
-.sechead+p{color:var(--mute);font-size:.9rem;margin:0 0 14px}
-.sm.imp{height:36px;padding:0 12px;font-size:.82rem;flex:none}
+.impcta{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;margin-bottom:12px;background:var(--accent);border:0;border-radius:var(--r);font:inherit;color:#fff;text-align:left;cursor:pointer;box-shadow:0 6px 16px rgba(228,87,46,.25);transition:.15s}
+.impcta:hover{background:var(--accent-d);transform:translateY(-1px)}
+.impcta:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(228,87,46,.35)}
+.impcta i{font-style:normal;font-size:1.5rem}
+.impcta span{flex:1;display:flex;flex-direction:column;line-height:1.3}
+.impcta b{font-weight:600}
+.impcta small{font-size:.84rem;opacity:.9}
 .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .choice{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;text-align:left;cursor:pointer;transition:.15s}
 .choice:hover,.choice.on{border-color:var(--accent);background:var(--tint)}
@@ -169,7 +172,7 @@ textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(22
   td.t::before{content:"Ordered "}
   td.cash{grid-area:cash;justify-self:end}
   .pay{padding:10px 16px 10px 13px;font-size:.88rem}
-  .sechead{margin-top:32px}
+  .sec{margin-top:32px}
   .choices{grid-template-columns:1fr}
   .choice{flex-direction:row;align-items:center;gap:12px;padding:14px 16px}
   .choice i{margin:0}
@@ -252,8 +255,9 @@ textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(22
   <div class="stats" id="stats"></div>
   <div id="tableWrap"></div>
   <button class="link" id="clear" style="margin-top:16px">Clear all submissions</button>
-  <div class="sechead"><h2 class="sec">Menu</h2><button type="button" class="sm imp" id="impOpen">✨ Import items</button></div>
+  <h2 class="sec">Menu</h2>
   <p>Change the emoji, name or price and press Save. Customers see changes right away.</p>
+  <button type="button" class="impcta" id="impOpen"><i>✨</i><span><b>Import items with AI</b><small>Paste text, upload a file or snap a photo of a menu</small></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
   <div class="card menued" id="menuEd"></div>
   <div class="msg" id="menuMsg" role="status"></div>
 </section>
