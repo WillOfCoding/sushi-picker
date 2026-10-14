@@ -139,13 +139,14 @@ td.t{color:var(--mute)}
 .sugg button{border:1px solid var(--line);border-radius:999px;background:var(--card);padding:8px 14px;font:inherit;font-size:.86rem;color:var(--ink);cursor:pointer}
 .sugg button:hover{border-color:var(--accent);background:var(--tint)}
 .composer{position:sticky;bottom:0;background:var(--bg);padding:10px 0 calc(14px + env(safe-area-inset-bottom))}
+.pend.hide{display:none}
 .pend{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin:0 0 8px;padding:5px 6px 5px 6px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:.85rem}
 .pend img{width:36px;height:36px;object-fit:cover;border-radius:8px}
 .pend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pend button{border:0;background:none;font-size:1.1rem;line-height:1;color:var(--mute);cursor:pointer;padding:4px 6px}
 .cbox{display:flex;align-items:flex-end;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:5px;transition:border-color .15s,box-shadow .15s}
 .cbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(228,87,46,.15)}
-.cbox textarea,.cbox textarea:focus{flex:1;min-height:0;height:40px;max-height:160px;margin:0;padding:9px 6px;border:0;box-shadow:none;background:none;resize:none;line-height:1.4}
+.cbox textarea{flex:1;font:inherit;color:inherit;outline:0;min-height:0;height:40px;max-height:160px;margin:0;padding:9px 6px;border:0;box-shadow:none;background:none;resize:none;line-height:1.4}
 .ib{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:none;color:var(--mute);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .ib:hover{background:#f4f4f5;color:var(--ink)}
 .ib.go{background:var(--accent);color:#fff}
