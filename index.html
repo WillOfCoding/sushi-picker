@@ -525,6 +525,7 @@ $("chatForm").onsubmit=async e=>{e.preventDefault();if(busy)return;
   busy=false;saveChat();drawChat();
 };
 
+async function render(){
   const s=sess();if(!s)return show("login");
   $("hello").textContent=`Hi, ${s.name}`;
   let o;
